@@ -1,0 +1,10 @@
+On a installé l'hyperviseur Proxmox VE en configurant le stockage en ZFS (RAID0). 
+
+Au-delà des performances, ce choix est la base de notre stratégie de sauvegarde et de continuité : 
+le ZFS nous permet de réaliser des snapshots instantanés avant chaque modification critique 
+sur nos serveurs (SambaEdu, OPNsense). 
+
+Cela nous garantit de pouvoir revenir en arrière immédiatement en cas d'erreur. 
+À plus large échelle, cette configuration facilite également la réplication des données 
+et la mise en place de sauvegardes externes compressées, assurant ainsi la pérennité 
+de toute la maquette pédagogique.
