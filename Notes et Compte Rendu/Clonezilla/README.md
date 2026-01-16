@@ -1,6 +1,6 @@
 # Mise en place d’un serveur de clonage Clonezilla (DRBL) sur Proxmox
 
-## 🎯 Objectif
+##  Objectif
 
 Mettre en place un **serveur de clonage Clonezilla** accessible via **PXE**, permettant :
 
@@ -12,7 +12,7 @@ pour des systèmes **Windows ou Linux**, dans un environnement virtualisé Proxm
 
 ---
 
-## 🧱 Environnement cible
+## Environnement cible
 
 | Élément            | Description                                  |
 | ------------------ | -------------------------------------------- |
@@ -23,7 +23,7 @@ pour des systèmes **Windows ou Linux**, dans un environnement virtualisé Proxm
 
 ---
 
-## 1️⃣ Création et configuration de la VM Debian
+## 1️ Création et configuration de la VM Debian
 
 ### 1.1 Création de la VM dans Proxmox
 
@@ -42,9 +42,9 @@ pour des systèmes **Windows ou Linux**, dans un environnement virtualisé Proxm
 1. Lancer l’installation depuis l’ISO Debian 12
 2. Sélection des logiciels :
 
-   * ✅ Serveur SSH
-   * ✅ Utilitaires usuels du système
-   * ❌ Environnement graphique (GNOME, KDE, XFCE…)
+   *  Serveur SSH
+   *  Utilitaires usuels du système
+   * Environnement graphique (GNOME, KDE, XFCE…)
 3. Créer un utilisateur avec mot de passe sécurisé
 4. Installer **GRUB** sur le disque principal (`/dev/sda` ou `/dev/vda`)
 5. Finaliser l’installation et redémarrer
@@ -62,7 +62,7 @@ apt update && apt upgrade -y
 
 ---
 
-## 2️⃣ Installation et configuration de Clonezilla Server (DRBL)
+## 2️ Installation et configuration de Clonezilla Server (DRBL)
 
 ### 2.1 Installation des paquets nécessaires
 
@@ -78,7 +78,7 @@ apt install drbl clonezilla -y
 drblsrv -i
 ```
 
-➡️ Accepter toutes les valeurs par défaut.
+ Accepter toutes les valeurs par défaut.
 
 ---
 
@@ -113,7 +113,7 @@ Les services doivent être **actifs** et sans erreur.
 
 ---
 
-## 3️⃣ Sécurisation et configuration SSH
+## 3️ Sécurisation et configuration SSH
 
 ### 3.1 Accès SSH
 
@@ -134,7 +134,7 @@ systemctl restart ssh
 
 ---
 
-## 4️⃣ Capture d’une image système (poste Master)
+## 4️ Capture d’une image système (poste Master)
 
 ### 4.1 Préparation du poste Master
 
@@ -161,7 +161,7 @@ systemctl restart ssh
 
 ---
 
-## 5️⃣ Déploiement d’une image sur un poste client
+## 5️Déploiement d’une image sur un poste client
 
 ### 5.1 Préparation du client
 
@@ -186,7 +186,7 @@ systemctl restart ssh
 
 ---
 
-## 6️⃣ Problèmes courants et solutions
+## 6️ Problèmes courants et solutions
 
 | Problème                  | Solution                                              |
 | ------------------------- | ----------------------------------------------------- |
@@ -221,7 +221,7 @@ systemctl restart ssh
 
 ---
 
-## 8️⃣ Résumé pour présentation orale
+## 8️ Résumé pour présentation orale
 
 * Mise en place d’un **serveur Clonezilla** sur Debian minimal
 * Fonctionnement **PXE + DHCP + NFS**
@@ -231,4 +231,4 @@ systemctl restart ssh
 
 ---
 
-📌 *Document prêt pour dépôt GitHub (README.md ou documentation projet)*
+ *Document prêt pour dépôt GitHub (README.md ou documentation projet)*
