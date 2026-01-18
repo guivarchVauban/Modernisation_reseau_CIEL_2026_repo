@@ -198,7 +198,7 @@ systemctl restart ssh
 
 ---
 
-## 7️⃣ Commandes utiles
+## 7️ Commandes utiles
 
 ```bash
 # Mise à jour système
