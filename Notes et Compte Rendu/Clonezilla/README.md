@@ -229,6 +229,6 @@ systemctl restart ssh
 * Administration **100 % en ligne de commande via SSH**
 * Pistes d’amélioration : multicast, optimisation pilotes Windows
 
----
 
- *Document prêt pour dépôt GitHub (README.md ou documentation projet)*
+
+ 
