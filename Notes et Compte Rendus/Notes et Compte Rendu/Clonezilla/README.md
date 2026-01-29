@@ -1,234 +1,78 @@
-# Mise en place d’un serveur de clonage Clonezilla (DRBL) sur Proxmox
+Intégration des classes et utilisateurs sur SambaEdu 
 
-##  Objectif
 
-Mettre en place un **serveur de clonage Clonezilla** accessible via **PXE**, permettant :
+SambaÉdu utilise un annuaire LDAP pour gérer les droits. La création d'une "Classe" est une étape cruciale car elle génère automatiquement les partages réseaux nécessaires (Dossier d'échange, dossiers personnels, etc.).
+1. Création d'une Classe (Groupe)
+Pour qu'une classe existe dans le système, elle doit d'abord être créée en tant que groupe dans l'annuaire.
+Procédure (voir image "Import CIEL_2") :
+Connectez-vous à l'interface de SambaÉdu avec un compte administrateur.
+Dans le menu de gauche, allez dans Annuaire > Ajout d'un groupe.
+Préfixe : Vous pouvez laisser vide ou mettre un préfixe court (ex: LP).
+Catégorie : Sélectionnez impérativement Classe dans le menu déroulant.
+Intitulé : Saisissez le nom de la classe (ex: CIEL_2).
+Cliquez sur le bouton Lancer.
 
-* la **capture** d’images système,
-* le **stockage centralisé** des images,
-* le **déploiement automatisé** sur plusieurs postes,
 
-pour des systèmes **Windows ou Linux**, dans un environnement virtualisé Proxmox.
 
----
 
-## Environnement cible
 
-| Élément            | Description                                  |
-| ------------------ | -------------------------------------------- |
-| Hyperviseur        | Proxmox VE                                   |
-| VM serveur         | Debian 12 minimal (sans interface graphique) |
-| Service de clonage | DRBL / Clonezilla Server                     |
-| Clients            | VM ou machines physiques avec boot PXE       |
 
----
 
-## 1️ Création et configuration de la VM Debian
 
-### 1.1 Création de la VM dans Proxmox
 
-* **OS** : Debian 12 (64 bits)
-* **CPU** : 2 vCPU
-* **RAM** : 2 à 4 Go
-* **Disque système** : 20 Go (SSD recommandé)
-* **Disque images** : 50 à 100 Go (dédié au stockage Clonezilla)
-* **Carte réseau** : Bridge (ex. `vmbr0`) connecté au LAN
-* **Accès console Proxmox** : activé
 
----
 
-### 1.2 Installation minimale de Debian 12
 
-1. Lancer l’installation depuis l’ISO Debian 12
-2. Sélection des logiciels :
+2. Initialisation des ressources de la classe
+Une fois le groupe créé dans l'annuaire, il faut générer les dossiers partagés sur le serveur de fichiers.
+Procédure (voir image "Creation des classes") :
+Allez dans le menu Gestion des partages > Répertoires Classes.
+Si la classe vient d'être créée, elle devrait apparaître dans la colonne "Classes à créer".
+Cochez la classe correspondante (ex: CIEL_2) et validez.
+Si la classe est déjà créée mais que vous voulez réinitialiser les droits, utilisez la colonne "Partages classes existants", sélectionnez la classe, cochez "Rafraîchir" et cliquez sur Valider.
+Note : Cela créera automatiquement l'arborescence /var/sambaedu/Classes/Classe_CIEL_2.
 
-   *  Serveur SSH
-   *  Utilitaires usuels du système
-   * Environnement graphique (GNOME, KDE, XFCE…)
-3. Créer un utilisateur avec mot de passe sécurisé
-4. Installer **GRUB** sur le disque principal (`/dev/sda` ou `/dev/vda`)
-5. Finaliser l’installation et redémarrer
 
----
 
-### 1.3 Accès initial et mise à jour
 
-Connexion via console Proxmox ou SSH, puis :
 
-```bash
-su -
-apt update && apt upgrade -y
-```
 
----
 
-## 2️ Installation et configuration de Clonezilla Server (DRBL)
 
-### 2.1 Installation des paquets nécessaires
 
-```bash
-apt install drbl clonezilla -y
-```
 
----
 
-### 2.2 Initialisation du serveur DRBL
+3. Ajout et Importation d'Utilisateurs
+Il existe deux méthodes principales pour ajouter des utilisateurs (élèves ou professeurs) :
+A. Ajout manuel (pour un utilisateur unique)
+Allez dans Annuaire > Ajout d'un utilisateur.
+Remplissez les champs (Nom, Prénom, Sexe).
+Dans la section "Groupes", affectez l'utilisateur à sa classe (ex: Classe_CIEL_2).
+Validez pour générer ses identifiants.
+B. Importation en masse (Méthode recommandée)
+SambaÉdu permet d'importer les comptes directement depuis les fichiers Siècle (pour les élèves) ou STS Web (pour les professeurs).
+Allez dans Annuaire > Importation Sconet/Siècle.
+Téléversez le fichier XML fourni par l'administration de l'établissement.
+Le système créera automatiquement :
+Les comptes utilisateurs.
+Les groupes de classes.
+Les appartenances (élèves dans les bonnes classes).
 
-```bash
-drblsrv -i
-```
 
- Accepter toutes les valeurs par défaut.
 
----
 
-### 2.3 Configuration PXE / DHCP / NFS
 
-```bash
-drblpush -i
-```
 
-Paramètres recommandés :
 
-* **Mode Clonezilla Server** : Oui
-* **DHCP** : Oui (réseau de test isolé)
-* **Interface réseau** : ex. `ens18` ou `eth0`
-* **Plage DHCP** : `192.168.100.50` → `192.168.100.100`
-* **PXE** : Activé
-* **Serveur NFS (images)** : Activé
-* **Multicast** : Non (optionnel)
 
-Accepter les autres valeurs par défaut.
 
----
 
-### 2.4 Vérification des services
 
-```bash
-systemctl status isc-dhcp-server
-systemctl status nfs-server
-```
 
-Les services doivent être **actifs** et sans erreur.
+4. Points de vigilance (Conseils issus de la documentation officielle)
+Synchronisation : Après une création massive, il est conseillé de vérifier dans Gestion des parages que les répertoires personnels ont bien été créés.
+Mots de passe : Lors du premier import, un mot de passe provisoire (souvent la date de naissance au format AAAAMMJJ) est attribué. L'utilisateur devra le changer à la première connexion.
+Suppression : Ne supprimez jamais un utilisateur manuellement dans les dossiers Windows. Passez toujours par l'interface SambaÉdu (Annuaire > Rechercher) pour que le nettoyage se fasse proprement dans le LDAP et sur le disque.
 
----
 
-## 3️ Sécurisation et configuration SSH
 
-### 3.1 Accès SSH
-
-Utiliser un utilisateur avec `sudo` ou autoriser temporairement `root`.
-
-Modifier `/etc/ssh/sshd_config` :
-
-```ini
-PermitRootLogin yes
-PasswordAuthentication yes
-```
-
-Redémarrer le service SSH :
-
-```bash
-systemctl restart ssh
-```
-
----
-
-## 4️ Capture d’une image système (poste Master)
-
-### 4.1 Préparation du poste Master
-
-* Installer Windows ou Linux
-* Configurer logiciels, paramètres, utilisateurs
-* **Windows** : exécuter `Sysprep` avant la capture (obligatoire)
-
----
-
-### 4.2 Démarrage PXE du poste Master
-
-* Activer le **boot PXE** dans le BIOS / UEFI
-* Le menu Clonezilla s’affiche automatiquement
-
----
-
-### 4.3 Capture de l’image
-
-1. `device-image`
-2. `save-disk`
-3. Destination : **Serveur NFS**
-4. Nom de l’image : `master-windows` ou `master-ubuntu`
-5. Lancer la sauvegarde
-
----
-
-## 5️Déploiement d’une image sur un poste client
-
-### 5.1 Préparation du client
-
-* Boot PXE activé
-* Disque vierge ou réinitialisé
-
----
-
-### 5.2 Restauration de l’image
-
-1. `device-image`
-2. `restore-disk`
-3. Sélectionner l’image
-4. Confirmer le déploiement
-
----
-
-### 5.3 Vérification
-
-* Démarrage normal du système cloné
-* Vérification des fichiers et applications
-
----
-
-## 6️ Problèmes courants et solutions
-
-| Problème                  | Solution                                              |
-| ------------------------- | ----------------------------------------------------- |
-| Accès SSH refusé          | Vérifier utilisateurs, mots de passe et `sshd_config` |
-| PXE ne démarre pas        | Vérifier DHCP, interface réseau, firewall             |
-| Windows non bootable      | `Sysprep` obligatoire avant capture                   |
-| Espace disque insuffisant | Ajouter un disque dédié aux images                    |
-| Multicast bloqué          | Vérifier switch et configuration DRBL                 |
-
----
-
-## 7️ Commandes utiles
-
-```bash
-# Mise à jour système
-apt update && apt upgrade -y
-
-# Installation Clonezilla / DRBL
-apt install drbl clonezilla -y
-
-# Configuration DRBL
-drblsrv -i
-drblpush -i
-
-# Vérification services
-systemctl status isc-dhcp-server
-systemctl status nfs-server
-
-# Redémarrer SSH
-systemctl restart ssh
-```
-
----
-
-## 8️ Résumé pour présentation orale
-
-* Mise en place d’un **serveur Clonezilla** sur Debian minimal
-* Fonctionnement **PXE + DHCP + NFS**
-* Capture et déploiement d’images système réussis
-* Administration **100 % en ligne de commande via SSH**
-* Pistes d’amélioration : multicast, optimisation pilotes Windows
-
-
-
- 
