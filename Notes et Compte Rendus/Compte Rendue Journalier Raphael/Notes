@@ -1,0 +1,26 @@
+Compte-rendu d'activité journalière - Étudiant 3
+Projet : Optimisation de l'infrastructure réseau - Segment WiFi Pédagogique Date : 02 février 2026
+
+1. Déploiement et extension de l'infrastructure matérielle
+Installation du second point d'accès : Mise en place physique et branchement du deuxième routeur Asus RT-AX57 pour assurer la couverture réseau de la zone pédagogique.
+
+Configuration AiMesh : Paramétrage du système en mode AiMesh. Le premier routeur a été défini comme contrôleur principal et le second a été intégré avec succès en tant que Nœud AiMesh (esclave).
+
+Mise à jour critique du Firmware : Exécution de la mise à jour du micrologiciel sur les deux bornes AX57. Cette opération a pour but d'aligner les versions logicielles et de préparer l'apparition des fonctionnalités de gestion avancée (comme le "Réseau invité Pro").
+
+2. Configuration logicielle du WiFi
+Création du SSID Étudiant : Configuration du réseau sans fil nommé CIEL_IR_ETUDIANT via le menu "Réseau invité" de l'interface Asus.
+
+Paramétrage Radio : Validation des protocoles de sécurité (WPA2) et du nommage des réseaux pour qu'ils soient diffusés de manière identique sur les deux bornes grâce à la synchronisation AiMesh.
+
+3. Recherche et Analyse (Infrastructure WiFi & Sécurité)
+Étude de l'interfaçage OPNsense : Recherches approfondies sur la manière dont les bornes WiFi vont communiquer avec le routeur OPNsense pour le transport des données.
+
+Veille technologique sur le Portail Captif : Analyse documentaire sur le fonctionnement du portail captif d'OPNsense et sa capacité à intercepter les flux venant des bornes Asus.
+
+Analyse de la solution d'authentification : Étude de la future liaison LDAP pour permettre aux bornes WiFi d'utiliser l'annuaire du serveur SambaEdu.
+
+4. État d'avancement
+✅ Terminé : Mise à jour des firmwares, déploiement du système AiMesh et création des SSIDs.
+
+🎯 Prochaine étape : Configuration des tags VLAN sur les SSIDs créés et test de la remontée des requêtes DHCP vers OPNsense.
