@@ -37,7 +37,7 @@ OK, pourrait être plus courte
 
 ## Rapport
 
-## Page de garde OK
+Page de garde OK
 
 Pied de page manque "Rapport Commun" ou "Nom de l'étudiant"
 Mettre en alignement "Justifié"
