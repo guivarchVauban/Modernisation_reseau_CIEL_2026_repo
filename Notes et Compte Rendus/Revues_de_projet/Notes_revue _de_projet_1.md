@@ -2,6 +2,9 @@ Temps 17:10
 
 # Notes revues de projet 1
 ## Oral
+
+**Reprendre la présentation du projet en s'appuyant sur les besoins, peut être en passant par des scénarios**
+
 ### Diapo 3
 
 Ilan présentation du contexte pas assez claire
