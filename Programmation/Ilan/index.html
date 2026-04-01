@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Blacklist</title>
+    <style>
+        /* (Le CSS reste identique, je ne le commente pas pour me concentrer sur la logique) */
+        body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { background: white; border: 2px solid #333; border-radius: 8px; padding: 20px; width: 800px; min-height: 500px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; margin-top: 100px; }
+        .login-box { border: 2px solid #333; padding: 30px; border-radius: 5px; text-align: right; }
+        .login-box input { margin-bottom: 15px; padding: 8px; width: 200px; margin-left: 10px; }
+        .btn-confirmer { padding: 8px 20px; border: 2px solid #333; background: white; cursor: pointer; float: right; }
+        #main-page { display: none; }
+        .header-search { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; }
+        .header-search input { padding: 8px; width: 300px; border: 2px solid #333; }
+        .header-search button { padding: 8px 15px; border: 2px solid #333; background: white; cursor: pointer; margin-left: 5px; font-weight: bold; }
+        .content-area { display: flex; gap: 20px; }
+        .left-panel { width: 250px; display: flex; flex-direction: column; gap: 20px; }
+        .add-box { border: 2px solid #333; padding: 15px; }
+        .add-box input { width: 90%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; box-sizing: border-box; }
+        .add-box button { width: 100%; padding: 8px; border: 2px solid #333; background: white; cursor: pointer; }
+        .delete-btn { padding: 30px 15px; border: 2px solid #333; background: white; cursor: pointer; font-size: 16px; }
+        .export-btn { padding: 15px; border: 2px solid #28a745; background: #e6f9eb; color: #28a745; cursor: pointer; font-weight: bold; margin-top: auto;}
+        .list-box { flex-grow: 1; border: 2px solid #333; height: 400px; overflow-y: auto; padding: 10px; }
+        .list-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .list-item:hover { background-color: #f0f0f0; }
+        .list-item.selected { background-color: #d0e8ff; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="login-page">
+        <h2>Blacklist</h2>
+        <div class="login-box">
+            <div>
+                <label>login</label>
+                <input type="text" id="username" placeholder="Optionnel">
+            </div>
+            <div>
+                <label>mdp</label>
+                <input type="password" id="password">
+            </div>
+            <button class="btn-confirmer" onclick="login()">confirmer</button>
+        </div>
+    </div>
+
+    <div id="main-page">
+        <div class="header-search">
+            <label style="margin-right: 15px;">rechercher</label>
+            <input type="text" id="searchInput" onkeyup="searchList()" placeholder="Taper pour chercher...">
+        </div>
+
+        <div class="content-area">
+            <div class="left-panel">
+                <div class="add-box">
+                    <input type="text" id="newItemInput" placeholder="insérer texte">
+                    <button onclick="addItem()">Ajouter</button>
+                </div>
+                <button class="delete-btn" onclick="deleteSelectedItem()">Supprimer</button>
+                <button class="export-btn" onclick="sauvegarderSurServeur()">💾 Sauvegarder sur serveur</button>
+            </div>
+            
+            <div class="list-box" id="blacklistContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = "http://10.10.10.51/api_blacklist.php";
+    
+    let blacklist = [];
+    let selectedIndex = -1;
+    let motDePasseSession = ""; // On stocke le mdp ici tant que l'onglet est ouvert.
+
+    function login() {
+        const pass = document.getElementById('password').value;
+        if(pass !== "") {
+            motDePasseSession = pass;
+            chargerBlacklistDuServeur();
+        } else {
+            alert("Veuillez entrer un mot de passe.");
+        }
+    }
+
+    // --- FONCTION POUR LIRE LE FICHIER DEPUIS LE SERVEUR ---
+    function chargerBlacklistDuServeur() {
+        // 'fetch' lance une requête HTTP invisible. C'est le cœur de la communication Client-Serveur.
+        fetch(API_URL, {
+            method: 'GET',
+            headers: { 'X-Auth-Token': motDePasseSession } // On glisse notre mot de passe dans l'en-tête
+        })
+        .then(response => {
+            // response.ok vérifie si le code statut est 200 (OK). Si c'est 401 (refusé), on déclenche une erreur.
+            if (!response.ok) throw new Error("Mot de passe incorrect ou accès refusé.");
+            return response.text(); // On extrait le texte brut de la réponse du serveur.
+        })
+        .then(texte => {
+            // Si on arrive ici, c'est que le mot de passe est bon ! On affiche la page principale.
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-page').style.display = 'block';
+            
+            // On prend le gros bloc de texte, on le coupe à chaque retour à la ligne (.split('\n'))
+            // on enlève les espaces inutiles (.map) et on jette les lignes vides (.filter). 
+            // On obtient un tableau propre (Array).
+            blacklist = texte.split('\n').map(item => item.trim()).filter(item => item !== "");
+            renderList(blacklist);
+        })
+        .catch(erreur => {
+            alert(erreur.message);
+            motDePasseSession = ""; // On vide la mémoire si le mdp était faux.
+            document.getElementById('password').value = "";
+        });
+    }
+
+    // --- FONCTION POUR ÉCRIRE LE FICHIER SUR LE SERVEUR ---
+    function sauvegarderSurServeur() {
+        // On fait l'inverse : on recolle tous les éléments de notre tableau JS avec des retours à la ligne ('\n')
+        // pour refaire un gros bloc de texte compréhensible par ton fichier .conf.
+        const textToSave = blacklist.join('\n');
+        
+        fetch(API_URL, {
+            method: 'POST', // POST car on ENVOIE des données pour modifier.
+            body: textToSave, // Le corps de notre requête contient le texte à sauvegarder.
+            headers: {
+                'Content-Type': 'text/plain',
+                'X-Auth-Token': motDePasseSession // On doit reprouver qui on est à chaque requête.
+            }
+        })
+        .then(response => {
+            if(response.ok) {
+                alert("✅ Blacklist mise à jour sur le serveur !");
+            } else {
+                alert("❌ Erreur de sauvegarde (permissions serveur ou session expirée).");
+            }
+        });
+    }
+
+    // --- FONCTION D'AFFICHAGE ---
+    function renderList(listToRender) {
+        const container = document.getElementById('blacklistContainer');
+        container.innerHTML = ""; // On vide visuellement la liste avant de la redessiner
+        
+        listToRender.forEach((item) => {
+            // Pour chaque élément, on crée une "div" HTML à la volée
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.textContent = item;
+            
+            // On attache un événement : quand on clique sur cette div précise...
+            div.onclick = function() {
+                // ... on retire la surbrillance de toutes les autres ...
+                document.querySelectorAll('.list-item').forEach(el => el.classList.remove('selected'));
+                // ... on met en surbrillance celle qu'on vient de cliquer ...
+                div.classList.add('selected');
+                // ... et on mémorise sa position dans le tableau JS pour pouvoir la supprimer plus tard.
+                selectedIndex = blacklist.indexOf(item);
+            };
+            container.appendChild(div); // On insère la div dans l'écran
+        });
+    }
+
+    function addItem() {
+        const input = document.getElementById('newItemInput');
+        const value = input.value.trim();
+        if(value !== "") {
+            blacklist.push(value); // Ajoute la valeur à la fin du tableau JS
+            input.value = "";
+            renderList(blacklist); // On redessine l'écran
+        }
+    }
+
+    function deleteSelectedItem() {
+        if(selectedIndex > -1) {
+            blacklist.splice(selectedIndex, 1); // Retire 1 élément du tableau à la position "selectedIndex"
+            selectedIndex = -1;
+            renderList(blacklist); // On redessine l'écran
+        } else {
+            alert("Veuillez sélectionner un élément à supprimer.");
+        }
+    }
+
+    function searchList() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        // On crée un nouveau tableau temporaire (filteredList) qui ne contient que les éléments 
+        // dont le texte inclut (.includes) ce qu'on a tapé dans la barre de recherche.
+        const filteredList = blacklist.filter(item => item.toLowerCase().includes(query));
+        renderList(filteredList); // On dessine ce tableau temporaire
+    }
+</script>
+
+</body>
+</html>
