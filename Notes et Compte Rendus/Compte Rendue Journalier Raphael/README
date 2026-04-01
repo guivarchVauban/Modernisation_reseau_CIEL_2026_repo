@@ -1,0 +1,33 @@
+Comptes-Rendus Journaliers — Raphaël
+Ce dossier regroupe l'intégralité du suivi quotidien des activités réalisées dans le cadre du projet. Chaque document sert de preuve de l'avancement technique et de la démarche de recherche effectuée.
+
+Structure type d'un rapport
+Pour garantir la clarté du dossier de projet, chaque compte-rendu suit systématiquement ce plan :
+
+1. Actions Réalisées
+Manipulations Matérielles : Installation, branchement et mise en service d'équipements.
+
+Configurations Logicielles : Paramétrage des systèmes, des interfaces et des services.
+
+Maintenance : Mises à jour, corrections d'erreurs et tests de bon fonctionnement.
+
+2. Recherche & Analyse
+Étude Théorique : Analyse documentaire sur les protocoles et les architectures cibles.
+
+Veille Technologique : Comparaison de solutions et lecture de documentations techniques.
+
+Cadrage : Réflexion sur l'intégration des nouveaux services dans l'infrastructure existante.
+
+3. État d'Avancement
+Un tableau récapitulatif permettant de visualiser :
+
+Les tâches Terminées (validées et fonctionnelles).
+
+Les tâches En cours (nécessitant des tests ou des ajustements).
+
+Les Points de blocage identifiés durant la séance.
+
+4. Perspectives & Objectifs
+Planification des tâches prioritaires pour la séance suivante.
+
+Lister les prérequis nécessaires pour la suite du déploiement.
