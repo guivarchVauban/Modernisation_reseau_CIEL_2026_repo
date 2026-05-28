@@ -111,7 +111,6 @@
                 <ringSettingIdle>4</ringSettingIdle>
                 <ringSettingActive>5</ringSettingActive>
                 <contact>119</contact>
-                <port>5060</port>
                 <forwardCallInfoDisplay>
                     <callerName>true</callerName>
                     <callerNumber>true</callerNumber>
