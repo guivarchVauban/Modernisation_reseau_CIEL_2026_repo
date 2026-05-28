@@ -111,7 +111,6 @@
                 <ringSettingIdle>4</ringSettingIdle>
                 <ringSettingActive>5</ringSettingActive>
                 <contact>112</contact>
-                <port>5060</port>
                 <forwardCallInfoDisplay>
                     <callerName>true</callerName>
                     <callerNumber>true</callerNumber>
@@ -133,7 +132,7 @@
         <callLogBlfEnabled>1</callLogBlfEnabled>
     </commonProfile>
 
-    <loadInformation>SIP42.9-4-2SR3-1S</loadInformation>
+    <loadInformation>SIP42.9-4-2ES26</loadInformation>
 
     <vendorConfig>
         <disableSpeaker>false</disableSpeaker>

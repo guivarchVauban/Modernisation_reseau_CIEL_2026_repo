@@ -133,7 +133,7 @@
         <callLogBlfEnabled>1</callLogBlfEnabled>
     </commonProfile>
 
-    <loadInformation>SIP42.9-4-2SR3-1S</loadInformation>
+    <loadInformation>SIP42.9-4-2ES26</loadInformation>
 
     <vendorConfig>
         <disableSpeaker>false</disableSpeaker>
