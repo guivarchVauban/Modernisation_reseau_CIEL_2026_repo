@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Portail Wi-Fi | Lycée Vauban</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <style>
+        /* Importation d'une police système moderne et propre */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-dark: #1f2937;
+            --text-light: #4b5563;
+            --primary-blue: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            --danger-red: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('images/fond-informatique.jpg') no-repeat center center fixed;
+            background-size: cover;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Logo BTS CIEL en coin */
+        .corner-logo {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            max-width: 120px;
+            height: auto;
+            z-index: 10;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .corner-logo {
+                top: 15px;
+                left: 15px;
+                max-width: 80px;
+            }
+        }
+
+        /* La Carte Glassmorphism */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-sizing: border-box;
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+
+        .card-logo {
+            max-width: 140px;
+            height: auto;
+            margin: 0 auto 1.5rem auto;
+            padding: 10px;
+            display: block;
+        }
+
+        h2 { 
+            color: var(--text-dark); 
+            margin: 0 0 0.5rem 0; 
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+        
+        p { 
+            color: var(--text-light); 
+            font-size: 0.95rem; 
+            margin-bottom: 1.5rem; 
+        }
+
+        /* Formulaire et Inputs */
+        .form-group { margin-bottom: 1rem; }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        
+        input:focus { 
+            outline: none; 
+            border-color: #2563eb; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); 
+        }
+
+        /* Boutons Communs */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #signin { background: var(--primary-blue); }
+        #signin:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3); }
+
+        #logoff { background: var(--danger-red); margin-top: 10px;}
+        #logoff:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3); }
+
+        .hidden { display: none !important; }
+        .alert { 
+            color: #b91c1c; 
+            background: #fee2e2; 
+            border: 1px solid #f87171;
+            padding: 12px; 
+            border-radius: 10px; 
+            margin-top: 1.2rem; 
+            font-size: 0.85rem; 
+            font-weight: 600;
+        }
+
+        .footer-link {
+            display: inline-block;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .footer-link:hover { color: white; text-decoration: underline; }
+
+        /* --- NOUVEAU : CSS de la Modale Charte Informatique --- */
+        #charteModal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            text-align: left;
+            position: relative;
+        }
+        .modal-content h3 { color: #1d4ed8; margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.1rem;}
+        .modal-content h2 { font-size: 1.4rem; margin-bottom: 1rem; color: var(--text-dark); text-align: center;}
+        .modal-content p, .modal-content li { color: var(--text-dark); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.5rem;}
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.2s;
+        }
+        .close-btn:hover { background: #b91c1c; }
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-track { background: transparent; }
+        .modal-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+
+    </style>
+
+    <script>
+        $( document ).ready(function() {
+            let redirurl = (new URL(window.location)).searchParams.get('redirurl');
+
+            $.ajax({
+                type: "POST",
+                url: "/api/captiveportal/access/status/",
+                dataType:"json"
+            }).done(function(data) {
+                if (data['clientState'] == 'AUTHORIZED') {
+                    $("#logout_frm").removeClass('hidden');
+                } else {
+                    $("#login_password").removeClass('hidden');
+                }
+            });
+
+            $("#signin").click(function (event) {
+                event.preventDefault();
+                $("#alertMSG").addClass("hidden");
+                $.ajax({
+                    type: "POST",
+                    url: "/api/captiveportal/access/logon/",
+                    dataType:"json",
+                    data:{ user: $("#inputUsername").val(), password: $("#inputPassword").val() }
+                }).done(function(data) {
+                    if (data['clientState'] == 'AUTHORIZED') {
+                        location.reload();
+                    } else {
+                        $("#errorMSGtext").html("Identifiants incorrects.");
+                        $("#alertMSG").removeClass("hidden");
+                    }
+                }).fail(function(){
+                    $("#errorMSGtext").html("Erreur de connexion au serveur.");
+                    $("#alertMSG").removeClass("hidden");
+                });
+            });
+
+            $("#logoff").click(function (event) {
+                event.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/api/captiveportal/access/logoff/",
+                    dataType:"json"
+                }).done(function() {
+                    location.reload();
+                });
+            });
+
+            // --- NOUVEAU : Logique de la modale Charte ---
+            $(".footer-link").click(function(event) {
+                event.preventDefault();
+                $("#charteModal").fadeIn(300);
+            });
+            $("#closeCharte").click(function() {
+                $("#charteModal").fadeOut(300);
+            });
+        });
+    </script>
+</head>
+<body>
+    
+    <img src="images/logo-btsciel.png" class="corner-logo" alt="Logo BTS CIEL">
+
+    <div style="position: absolute; bottom: 20px; width: 100%; text-align: center; z-index: 1;">
+        <a href="#" class="footer-link">Lire la Charte Informatique</a>
+    </div>
+
+    <div class="glass-card">
+        <img src="images/logo-vauban.png" class="card-logo" alt="Lycée Vauban">
+
+        <div id="login_password" class="hidden">
+            <h2>Accès Réseau</h2>
+            <p>Authentification requise pour naviguer.</p>
+            <form>
+                <div class="form-group">
+                    <input type="text" id="inputUsername" placeholder="Identifiant" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="inputPassword" placeholder="Mot de passe" required>
+                </div>
+                <button class="btn" id="signin" type="button">S'authentifier</button>
+            </form>
+        </div>
+
+        <div id="logout_frm" class="hidden">
+            <h2>Session Active</h2>
+            <p>Votre accès Internet est déverrouillé.</p>
+            <button class="btn" id="logoff" type="button">Se déconnecter</button>
+        </div>
+
+        <div class="alert hidden" id="alertMSG"><span id="errorMSGtext"></span></div>
+    </div>
+
+    <div id="charteModal" style="display: none;">
+        <div class="modal-content">
+            <button class="close-btn" id="closeCharte">&times;</button>
+            <h2>Charte d'utilisation des services multimédias [cite: 3, 4]</h2>
+            
+            <h3>1. Champ d'application & Accès</h3>
+            <p>Ces règles s'appliquent à toute personne autorisée à utiliser les services multimédias proposés dans l'établissement[cite: 14]. Les services sont destinés à un usage pédagogique et éducatif[cite: 20]. L'identifiant et le mot de passe sont strictement personnels et confidentiels[cite: 24]. L'espace de travail n'est pas un espace privé : les professeurs et l'administrateur y ont accès[cite: 27, 28].</p>
+            
+            <h3>2. Engagements de l'utilisateur</h3>
+            <ul>
+                <li>Respecter la loi (ne pas consulter ou diffuser des documents à caractère diffamatoire, raciste, etc.)[cite: 36].</li>
+                <li>Ne pas effectuer des actes de piratage, introduire des virus, ou contourner la sécurité[cite: 38, 39].</li>
+                <li>Ne pas effectuer de téléchargements illégaux ou modifier la configuration des machines[cite: 40, 42].</li>
+            </ul>
+            <p>Le non-respect de ces règles expose l'utilisateur à des sanctions disciplinaires, au retrait des droits d'accès, et à des poursuites civiles ou pénales (articles 323-1 à 323-7 du Code Pénal)[cite: 49, 50, 119, 120].</p>
+            
+            <h3>3. Utilisation équitable</h3>
+            <p>Un utilisateur ne doit jamais quitter un poste de travail sans se déconnecter[cite: 57]. Les impressions sont soumises à l'autorisation d'un professeur[cite: 59].</p>
+            
+            <h3>4. Droit à l'image</h3>
+            <p>La diffusion de toute image du personnel de l'établissement est strictement interdite sans autorisation préalable[cite: 62]. Pour les élèves, l'accord des parents ou de l'élève majeur est obligatoire pour toute diffusion[cite: 66, 131, 132].</p>
+        </div>
+    </div>
+
+</body>
+</html>
