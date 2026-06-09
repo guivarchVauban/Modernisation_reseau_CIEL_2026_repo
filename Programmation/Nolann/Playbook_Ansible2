@@ -1,0 +1,11 @@
+
+- name: Rename Windows machine
+  hosts: windows
+
+  tasks:
+    - name: Change hostname
+      ansible.windows.win_hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: Reboot if needed
+      ansible.windows.win_reboot:
