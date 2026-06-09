@@ -1,0 +1,79 @@
+#!ipxe
+
+set server 172.26.0.3
+set czpath os/clonezilla
+set image 2026-05-06-10-img
+set disk nvme0n1
+set password prof2025
+
+console --x 1024 --y 768
+
+:menu
+menu Menu PXE Clonezilla personnalise
+
+item test      Tester demarrage Clonezilla Live
+item full      Restaurer le disque complet
+item win       Restaurer Windows uniquement
+item linux     Restaurer Linux uniquement
+item dual      Restaurer Windows + Linux sans toucher a D:
+item retour    Retour menu principal
+item exit      Boot disque dur
+
+choose selected && goto ${selected}
+
+:test
+kernel http://${server}/${czpath}/vmlinuz boot=live config components union=overlay username=user noswap edd=on nomodeset locales=fr_FR.UTF-8 keyboard-layouts=fr ocs_live_run="ocs-live-general" ocs_live_extra_param="" ocs_live_batch="no" vga=788 nosplash noprompt fetch=http://${server}/${czpath}/filesystem.squashfs
+initrd http://${server}/${czpath}/initrd.img
+boot
+
+:full
+set action restore-full
+goto auth
+
+:win
+set action restore-win
+goto auth
+
+:linux
+set action restore-linux
+goto auth
+
+:dual
+set action restore-dual
+goto auth
+
+:auth
+clear
+echo ATTENTION : restauration Clonezilla
+echo Mot de passe requis :
+read mdp
+iseq ${mdp} ${password} && goto ${action}
+echo Mot de passe incorrect
+sleep 3
+goto menu
+
+:restore-full
+kernel http://${server}/${czpath}/vmlinuz boot=live config components union=overlay username=user noswap edd=on nomodeset locales=fr_FR.UTF-8 keyboard-layouts=fr ocs_prerun="mount -t cifs //172.26.0.3/partimage-pxe /home/partimag -o guest,ro,vers=3.0" ocs_live_run="ocs-sr -g auto -e1 auto -e2 -r -j2 -k -p reboot restoredisk ${image} ${disk}" ocs_live_extra_param="" ocs_live_batch="no" vga=788 nosplash noprompt fetch=http://${server}/${czpath}/filesystem.squashfs
+initrd http://${server}/${czpath}/initrd.img
+boot
+
+:restore-win
+kernel http://${server}/${czpath}/vmlinuz boot=live config components union=overlay username=user noswap edd=on nomodeset locales=fr_FR.UTF-8 keyboard-layouts=fr ocs_prerun="mount -t cifs //172.26.0.3/partimage-pxe /home/partimag -o guest,ro,vers=3.0" ocs_live_run="ocs-sr -e1 auto -e2 -r -j2 -k -p reboot restoreparts ${image} ${disk}p1 ${disk}p2 ${disk}p3 ${disk}p4" ocs_live_extra_param="" ocs_live_batch="no" vga=788 nosplash noprompt fetch=http://${server}/${czpath}/filesystem.squashfs
+initrd http://${server}/${czpath}/initrd.img
+boot
+
+:restore-linux
+kernel http://${server}/${czpath}/vmlinuz boot=live config components union=overlay username=user noswap edd=on nomodeset locales=fr_FR.UTF-8 keyboard-layouts=fr ocs_prerun="mount -t cifs //172.26.0.3/partimage-pxe /home/partimag -o guest,ro,vers=3.0" ocs_live_run="ocs-sr -e1 auto -e2 -r -j2 -k -p reboot restoreparts ${image} ${disk}p5" ocs_live_extra_param="" ocs_live_batch="no" vga=788 nosplash noprompt fetch=http://${server}/${czpath}/filesystem.squashfs
+initrd http://${server}/${czpath}/initrd.img
+boot
+
+:restore-dual
+kernel http://${server}/${czpath}/vmlinuz boot=live config components union=overlay username=user noswap edd=on nomodeset locales=fr_FR.UTF-8 keyboard-layouts=fr ocs_prerun="mount -t cifs //172.26.0.3/partimage-pxe /home/partimag -o guest,ro,vers=3.0" ocs_live_run="ocs-sr -e1 auto -e2 -r -j2 -k -p reboot restoreparts ${image} ${disk}p1 ${disk}p2 ${disk}p3 ${disk}p4 ${disk}p5" ocs_live_extra_param="" ocs_live_batch="no" vga=788 nosplash noprompt fetch=http://${server}/${czpath}/filesystem.squashfs
+initrd http://${server}/${czpath}/initrd.img
+boot
+
+:retour
+chain --replace --autofree http://${server}/ipxe/boot.php
+
+:exit
+sanboot --no-describe --drive 0x80 || exit
